@@ -1,23 +1,12 @@
 variable "project_name" {
-  default = "agentic-ai"
+  default = "ai-test-agent"
 }
 
-variable "vpc_cidr" {
-  default = "10.0.0.0/16"
+variable "github_repo_name" {
+  description = "GitHub repository name"
 }
 
-variable "public_subnet_cidr" {
-  default = "10.0.1.0/24"
-}
-
-variable "availability_zone" {
-  default = "eu-west-2a"
-}
-
-variable "instance_type" {
-  default = "t3.micro"
-}
-
-variable "key_pair_name" {
-  description = "agentic-keypair"
+variable "github_token" {
+  description = "GitHub token"
+  sensitive   = true
 }
