@@ -30,20 +30,21 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 }
 
 # Upload Lambda JAR to S3
-resource "aws_s3_bucket_object" "lambda_jar" {
-  bucket = aws_s3_bucket.bucket.id
-  key    = "lambda/ai-test-agent.jar"
-  source = "../target/*-shaded.jar"
+resource "aws_s3_object" "lambda_jar" {
+  bucket = aws_s3_bucket.bucket.bucket
+  key    = "lambda/lambda.jar"
+  source = "../target/lambda.jar"
 }
 
 # Lambda Function
 resource "aws_lambda_function" "lambda" {
-  function_name = "${var.project_name}-lambda"
+  function_name = "ai-test-agent-lambda"
   role          = aws_iam_role.lambda_role.arn
-  handler       = "com.example.TestAgentLambda::handleRequest"
   runtime       = "java17"
+  handler       = "com.example.TestAgentLambda::handleRequest"
   timeout       = 30
 
   s3_bucket = aws_s3_bucket.bucket.bucket
-  s3_key    = aws_s3_bucket_object.lambda_jar.key
+  s3_key    = aws_s3_object.lambda_jar.key
 }
+
