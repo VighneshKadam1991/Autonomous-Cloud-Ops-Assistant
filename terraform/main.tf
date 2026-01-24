@@ -2,48 +2,41 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# S3 bucket for Lambda artifacts & logs
+# S3 bucket for Lambda JAR
 resource "aws_s3_bucket" "bucket" {
   bucket = "${var.project_name}-bucket"
-  acl    = "private"
 }
 
-# DynamoDB table for Lambda / test results
-resource "aws_dynamodb_table" "results" {
-  name         = "${var.project_name}-results"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "userId"
-  range_key    = "timestamp"
-
-  attribute {
-    name = "userId"
-    type = "S"
-  }
-  attribute {
-    name = "timestamp"
-    type = "S"
-  }
-}
-
-# IAM role for Lambda
+# IAM Role for Lambda
 resource "aws_iam_role" "lambda_role" {
-  name = "${var.project_name}-role"
+  name = "${var.project_name}-lambda-role"
+
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
+    Version = "2012-10-17",
     Statement = [{
-      Effect = "Allow"
-      Principal = { Service = "lambda.amazonaws.com" }
-      Action = "sts:AssumeRole"
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = {
+        Service = "lambda.amazonaws.com"
+      }
     }]
   })
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_attach" {
+# Attach basic Lambda execution policy
+resource "aws_iam_role_policy_attachment" "lambda_basic" {
   role       = aws_iam_role.lambda_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AWSLambdaFullAccess"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-# Lambda function
+# Upload Lambda JAR to S3
+resource "aws_s3_bucket_object" "lambda_jar" {
+  bucket = aws_s3_bucket.bucket.id
+  key    = "lambda/ai-test-agent.jar"
+  source = "../target/*-shaded.jar"
+}
+
+# Lambda Function
 resource "aws_lambda_function" "lambda" {
   function_name = "${var.project_name}-lambda"
   role          = aws_iam_role.lambda_role.arn
@@ -51,13 +44,6 @@ resource "aws_lambda_function" "lambda" {
   runtime       = "java17"
   timeout       = 30
 
-  filename         = "../target/ai-test-agent-1.0-SNAPSHOT-shaded.jar"
-  source_code_hash = filebase64sha256("../target/ai-test-agent-1.0-SNAPSHOT-shaded.jar")
-
-  environment {
-    variables = {
-      BUCKET_NAME = aws_s3_bucket.bucket.bucket
-      TABLE_NAME  = aws_dynamodb_table.results.name
-    }
-  }
+  s3_bucket = aws_s3_bucket.bucket.bucket
+  s3_key    = aws_s3_bucket_object.lambda_jar.key
 }
