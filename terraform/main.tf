@@ -51,8 +51,8 @@ resource "aws_lambda_function" "lambda" {
   runtime       = "java17"
   timeout       = 30
 
-  filename         = "build/libs/test-agent-lambda.jar"
-  source_code_hash = filebase64sha256("build/libs/test-agent-lambda.jar")
+  filename         = "target/ai-test-agent-1.0-SNAPSHOT-shaded.jar"
+  source_code_hash = filebase64sha256("target/ai-test-agent-1.0-SNAPSHOT-shaded.jar")
 
   environment {
     variables = {
