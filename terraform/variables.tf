@@ -1,6 +1,6 @@
 variable "project_name" {
   description = "Project name"
-  default     = "ai-test-agent"
+  default     = "ai-test-agent-cloudops"
 }
 
 variable "github_token" {
