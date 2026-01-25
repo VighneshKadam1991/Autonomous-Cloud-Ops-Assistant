@@ -18,7 +18,7 @@ resource "aws_dynamodb_table" "agent_memory" {
   }
 }
 
- IAM Role for Lambda
+
 resource "aws_iam_role" "lambda_role" {
   name = "${var.project_name}-lambda-role"
 
@@ -34,9 +34,6 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
- -----------------------------
- IAM Policy (Agent Permissions)
- -----------------------------
 resource "aws_iam_role_policy" "agent_policy" {
   role = aws_iam_role.lambda_role.id
 
@@ -63,7 +60,7 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
- Upload Lambda JAR to S3
+
 resource "aws_s3_object" "lambda_jar" {
   bucket = aws_s3_bucket.lambda_bucket.id
   key    = "lambda/lambda.jar"
@@ -71,7 +68,7 @@ resource "aws_s3_object" "lambda_jar" {
   etag   = filemd5("../target/lambda.jar")
 }
 
- Lambda Function
+
 resource "aws_lambda_function" "agent" {
   function_name = "${var.project_name}-agent"
   role          = aws_iam_role.lambda_role.arn
