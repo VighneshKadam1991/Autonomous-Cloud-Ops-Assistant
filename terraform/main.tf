@@ -92,7 +92,7 @@ resource "aws_cloudwatch_event_rule" "agent_schedule" {
 
 resource "aws_cloudwatch_event_target" "agent_target" {
   rule = aws_cloudwatch_event_rule.agent_schedule.name
-  arn  = aws_lambda_function.lambda.arn
+  arn  = aws_lambda_function.agent.arn
 
 }
 
