@@ -1,32 +1,28 @@
 package com.example;
 
 import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
 
 import java.util.Map;
 
-public class TestAgentLambda {
+public class TestAgentLambda implements RequestHandler<Map<String, Object>, String> {
 
-    private final DecisionEngine agent = new HeuristicDecisionEngine();
+    @Override
+    public String handleRequest(Map<String, Object> input, Context context) {
 
-    public String handleRequest(Map<String,Object> event, Context context) {
+        CloudWatchSensor sensor = new CloudWatchSensor();
+        AgentMemory memory = new AgentMemory(System.getenv("MEMORY_TABLE"));
+        DecisionEngine engine = new HeuristicDecisionEngine();
+        ActionExecutor executor = new ActionExecutor();
 
-        String instanceId = (String) event.get("instanceId");
+        AgentContext agentContext = AgentContextBuilder.build(sensor.observe(), memory);
 
-        AgentObservation obs = CloudWatchSensor.observe(instanceId);
-        AgentMemoryRecord memory = AgentMemory.load(instanceId);
+        Decision decision = engine.decide(agentContext);
 
-        AgentContext ctx = AgentContextBuilder.fromObservationAndMemory(obs, memory);
+        executor.execute(decision);
 
-        Decision decision = agent.decide(ctx);
+        memory.save(agentContext, decision);
 
-        ActionExecutor.execute(decision.action, instanceId);
-
-        memory.lastAction = decision.action;
-        memory.lastActionTime = java.time.Instant.now();
-        if ("RESTART_INSTANCE".equals(decision.action)) memory.restartFailures++;
-        if ("SCALE_OUT".equals(decision.action)) memory.scaleSuccessCount++;
-        AgentMemory.save(memory);
-
-        return "Action: " + decision.action + " | Reason: " + decision.reason;
+        return "Agent cycle completed";
     }
 }

@@ -1,15 +1,18 @@
 package com.example;
 
 public class HeuristicDecisionEngine implements DecisionEngine {
+
     @Override
-    public Decision decide(AgentContext ctx) {
+    public Decision decide(AgentContext context) {
 
-        if (ctx.cpuUtilization > 75 && ctx.restartFailures == 0)
-            return new Decision("RESTART_INSTANCE", "Restart chosen based on memory");
+        if (context.cpuUtilization > 80 && context.seenBefore) {
+            return Decision.REBOOT_INSTANCE;
+        }
 
-        if (ctx.cpuUtilization > 75 && ctx.restartFailures > 0)
-            return new Decision("SCALE_OUT", "Scale out chosen due to previous restart failure");
+        if (context.cpuUtilization > 80) {
+            return Decision.LOG_ONLY;
+        }
 
-        return new Decision("WAIT", "CPU low, no action");
+        return Decision.NO_ACTION;
     }
 }

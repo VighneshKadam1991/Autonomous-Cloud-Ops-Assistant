@@ -3,16 +3,12 @@ package com.example;
 import java.util.Map;
 
 public class AgentContextBuilder {
-    public static AgentContext fromObservationAndMemory(AgentObservation obs, AgentMemoryRecord mem) {
+
+    public static AgentContext build(AgentObservation obs, AgentMemory memory) {
         AgentContext ctx = new AgentContext();
-        ctx.cpuUtilization = obs.cpuUtilization;
-        ctx.highCpuDurationMinutes = obs.highCpuDurationMinutes;
-        ctx.restartFailures = mem.restartFailures;
-        ctx.scaleSuccessCount = mem.scaleSuccessCount;
-        ctx.historicalSuccessRates = Map.of(
-                "RESTART", 1.0 - (mem.restartFailures / 10.0),
-                "SCALE", mem.scaleSuccessCount / 10.0
-        );
+        ctx.resourceId = obs.resourceId();
+        ctx.cpuUtilization = obs.cpu();
+        ctx.seenBefore = memory.exists(obs.resourceId());
         return ctx;
     }
 }
