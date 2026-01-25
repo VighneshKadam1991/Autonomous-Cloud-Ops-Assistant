@@ -19,49 +19,49 @@ resource "aws_dynamodb_table" "agent_memory" {
 }
 
 # IAM Role for Lambda
-resource "aws_iam_role" "lambda_role" {
-  name = "${var.project_name}-lambda-role"
+#resource "aws_iam_role" "lambda_role" {
+#  name = "${var.project_name}-lambda-role"
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Action    = "sts:AssumeRole"
-      Effect    = "Allow"
-      Principal = {
-        Service = "lambda.amazonaws.com"
-      }
-    }]
-  })
-}
+#  assume_role_policy = jsonencode({
+#    Version = "2012-10-17",
+#    Statement = [{
+#      Action    = "sts:AssumeRole"
+#      Effect    = "Allow"
+#      Principal = {
+#        Service = "lambda.amazonaws.com"
+#      }
+#    }]
+#  })
+#}
 
 # -----------------------------
 # IAM Policy (Agent Permissions)
 # -----------------------------
-resource "aws_iam_role_policy" "agent_policy" {
-  role = aws_iam_role.lambda_role.id
+#resource "aws_iam_role_policy" "agent_policy" {
+#  role = aws_iam_role.lambda_role.id
 
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Action = [
-          "cloudwatch:GetMetricData",
-          "ec2:DescribeInstances",
-          "ec2:RebootInstances",
-          "dynamodb:GetItem",
-          "dynamodb:PutItem"
-        ],
-        Resource = "*"
-      }
-    ]
-  })
-}
+#  policy = jsonencode({
+#    Version = "2012-10-17",
+#    Statement = [
+#      {
+#        Effect = "Allow",
+#        Action = [
+#          "cloudwatch:GetMetricData",
+#          "ec2:DescribeInstances",
+#          "ec2:RebootInstances",
+#          "dynamodb:GetItem",
+#          "dynamodb:PutItem"
+#        ],
+#        Resource = "*"
+#      }
+#    ]
+#  })
+#}
 
-resource "aws_iam_role_policy_attachment" "lambda_logs" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-}
+#resource "aws_iam_role_policy_attachment" "lambda_logs" {
+#  role       = aws_iam_role.lambda_role.name
+#  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+#}
 
 # Upload Lambda JAR to S3
 #resource "aws_s3_object" "lambda_jar" {
