@@ -1,6 +1,6 @@
-output "lambda_function_name" {
-  value = aws_lambda_function.agent.function_name
-}
+#output "lambda_function_name" {
+#  value = aws_lambda_function.agent.function_name
+#}
 
 output "artifact_bucket" {
   value = aws_s3_bucket.lambda_bucket.bucket
