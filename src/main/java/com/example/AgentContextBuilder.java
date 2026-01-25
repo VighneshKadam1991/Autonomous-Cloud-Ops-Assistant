@@ -1,6 +1,8 @@
 package com.example;
 
-import java.util.Map;
+import com.example.AgentContext;
+import com.example.AgentMemory;
+import com.example.AgentObservation;
 
 public class AgentContextBuilder {
 

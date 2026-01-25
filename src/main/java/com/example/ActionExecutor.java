@@ -9,11 +9,13 @@ public class ActionExecutor {
 
         switch (decision) {
             case REBOOT_INSTANCE ->
-                    System.out.println("Rebooting EC2 instance");
+                    System.out.println("ACTION: Rebooting EC2 instance");
+
             case LOG_ONLY ->
-                    System.out.println("High CPU detected, monitoring");
+                    System.out.println("ACTION: High CPU detected, monitoring");
+
             default ->
-                    System.out.println("All normal");
+                    System.out.println("ACTION: No action required");
         }
     }
 }

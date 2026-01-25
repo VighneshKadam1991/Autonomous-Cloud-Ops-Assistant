@@ -11,16 +11,26 @@ public class TestAgentLambda implements RequestHandler<Map<String, Object>, Stri
     public String handleRequest(Map<String, Object> input, Context context) {
 
         CloudWatchSensor sensor = new CloudWatchSensor();
-        AgentMemory memory = new AgentMemory(System.getenv("MEMORY_TABLE"));
+        AgentMemory memory = new AgentMemory(
+                System.getenv("MEMORY_TABLE")
+        );
         DecisionEngine engine = new HeuristicDecisionEngine();
         ActionExecutor executor = new ActionExecutor();
 
-        AgentContext agentContext = AgentContextBuilder.build(sensor.observe(), memory);
+        // Observe
+        AgentObservation observation = sensor.observe();
 
+        // Build context
+        AgentContext agentContext =
+                AgentContextBuilder.build(observation, memory);
+
+        // Decide
         Decision decision = engine.decide(agentContext);
 
+        // Act
         executor.execute(decision);
 
+        // Remember
         memory.save(agentContext, decision);
 
         return "Agent cycle completed";

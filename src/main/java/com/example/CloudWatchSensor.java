@@ -7,9 +7,9 @@ public class CloudWatchSensor {
 
     public AgentObservation observe() {
 
-        // Mocked for MVP demo (you can later wire real metrics)
+        // Simulated CPU for MVP demo
         double cpu = Math.random() * 100;
 
-        return new AgentObservation("i-123456", cpu);
+        return new AgentObservation("i-1234567890", cpu);
     }
 }
