@@ -10,7 +10,3 @@ variable "github_token" {
 variable "github_repo_name" {
   description = "GitHub repository name"
 }
-variable "instance_id" {
-  type        = string
-  description = "EC2 instance monitored by agent"
-}
