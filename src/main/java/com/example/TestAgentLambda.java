@@ -1,15 +1,32 @@
 package com.example;
 
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.RequestHandler;
+
 import java.util.Map;
 
-public class TestAgentLambda implements RequestHandler<Map<String, String>, String> {
+public class TestAgentLambda {
 
-    @Override
-    public String handleRequest(Map<String, String> event, Context context) {
-        String userMessage = event.getOrDefault("message", "Hello from AI Test Agent!");
-        // Here you would call AWS Bedrock / Comprehend for agentic logic
-        return "AI Response: " + userMessage;
+    private final DecisionEngine agent = new HeuristicDecisionEngine();
+
+    public String handleRequest(Map<String,Object> event, Context context) {
+
+        String instanceId = (String) event.get("instanceId");
+
+        AgentObservation obs = CloudWatchSensor.observe(instanceId);
+        AgentMemoryRecord memory = AgentMemory.load(instanceId);
+
+        AgentContext ctx = AgentContextBuilder.fromObservationAndMemory(obs, memory);
+
+        Decision decision = agent.decide(ctx);
+
+        ActionExecutor.execute(decision.action, instanceId);
+
+        memory.lastAction = decision.action;
+        memory.lastActionTime = java.time.Instant.now();
+        if ("RESTART_INSTANCE".equals(decision.action)) memory.restartFailures++;
+        if ("SCALE_OUT".equals(decision.action)) memory.scaleSuccessCount++;
+        AgentMemory.save(memory);
+
+        return "Action: " + decision.action + " | Reason: " + decision.reason;
     }
 }
